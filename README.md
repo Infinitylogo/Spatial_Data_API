@@ -15,3 +15,6 @@ SPATIAL_DATA_API/
 ├── requirements.txt
 └── README.md
 -->
+
+# permission
+chmod +x run.sh

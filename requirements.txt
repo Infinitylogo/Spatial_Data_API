@@ -11,3 +11,6 @@ pymongo==4.4.1
 folium 
 cartopy 
 matplotlib
+quart
+hypercorn
+motor

@@ -3,9 +3,11 @@ from app.db import init_db
 from app.routes import api_bp
 from app.dashboard import create_dashboard
 from config import Config
+from quart import Quart
 
 def create_app():
-    app = Flask(__name__)
+    # app = Flask(__name__)
+    app = Quart(__name__)
     app.config.from_object(Config)
     init_db(app)
     

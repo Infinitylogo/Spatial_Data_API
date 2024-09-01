@@ -3,7 +3,7 @@
 
 # 1. Update a Point (PUT /points/<id>)
 # Replace <id> with the actual ObjectId of the point you want to update.
-curl -X PUT http://127.0.0.1:5000/api/points/<id> \
+curl -X PUT http://127.0.0.1:8000/api/points/<id> \
 -H "Content-Type: application/json" \
 -d '{
   "location": "Updated Point Name",
@@ -12,8 +12,24 @@ curl -X PUT http://127.0.0.1:5000/api/points/<id> \
 }'
 
 # 2. Create a Polygon (POST /polygons)
-# This command creates a new polygon with the provided name and coordinates.
-curl -X POST http://127.0.0.1:5000/api/polygons \
+# This command creates a new polygon with the provided location and coordinates.
+curl -X POST http://127.0.0.1:8000/api/polygons \
+-H "Content-Type: application/json" \
+# curls request each process
+
+# 1. Update a Point (PUT /points/<id>)
+# Replace <id> with the actual ObjectId of the point you want to update.
+curl -X PUT http://127.0.0.1:8000/api/points/<id> \
+-H "Content-Type: application/json" \
+-d '{
+  "location": "Updated Point Name",
+  "longitude": 77.5946,
+  "latitude": 12.9716
+}'
+
+# 2. Create a Polygon (POST /polygons)
+# This command creates a new polygon with the provided location and coordinates.
+curl -X POST http://127.0.0.1:8000/api/polygons \
 -H "Content-Type: application/json" \
 -d '{
   "location": "Polygon Name",
@@ -29,11 +45,11 @@ curl -X POST http://127.0.0.1:5000/api/polygons \
 
 # 3. Get a Polygon by ID (GET /polygons/<id>)
 # Replace <id> with the actual ObjectId of the polygon you want to retrieve.
-curl -X GET http://127.0.0.1:5000/api/polygons/<id>
+curl -X GET http://127.0.0.1:8000/api/polygons/<id>
 
 # 4. Update a Polygon (PUT /polygons/<id>)
 # Replace <id> with the actual ObjectId of the polygon you want to update.
-curl -X PUT http://127.0.0.1:5000/api/polygons/<id> \
+curl -X PUT http://127.0.0.1:8000/api/polygons/<id> \
 -H "Content-Type: application/json" \
 -d '{
   "location": "Updated Polygon Name",
@@ -49,11 +65,53 @@ curl -X PUT http://127.0.0.1:5000/api/polygons/<id> \
 
 # 5. Get a Point by ID (GET /points/<id>)
 # Replace <id> with the actual ObjectId of the point you want to retrieve.
-curl -X GET http://127.0.0.1:5000/api/points/<id>
+curl -X GET http://127.0.0.1:8000/api/points/<id>
 
 
 # 6. for points :--
-curl -X POST http://localhost:5000/api/points -H "Content-Type: application/json" -d "{\"name\": \"Point A\", \"longitude\": 12.34, \"latitude\": 56.78}"
+curl -X POST http://localhost:8000/api/points -H "Content-Type: application/json" -d "{\"location\": \"Point A\", \"longitude\": 12.34, \"latitude\": 56.78}"
 
 
-curl -X GET http://127.0.0.1:5000/api/points/66d46cd31c05f15572768245
+curl -X GET http://127.0.0.1:8000/api/points/66d46cd31c05f15572768245
+-d '{
+  "location": "Polygon Name",
+  "density":"20",
+  "coordinates": [
+    [77.5946, 12.9716],
+    [77.5946, 12.9718],
+    [77.5948, 12.9718],
+    [77.5948, 12.9716],
+    [77.5946, 12.9716]
+  ]
+}'
+
+# 3. Get a Polygon by ID (GET /polygons/<id>)
+# Replace <id> with the actual ObjectId of the polygon you want to retrieve.
+curl -X GET http://127.0.0.1:8000/api/polygons/<id>
+
+# 4. Update a Polygon (PUT /polygons/<id>)
+# Replace <id> with the actual ObjectId of the polygon you want to update.
+curl -X PUT http://127.0.0.1:8000/api/polygons/<id> \
+-H "Content-Type: application/json" \
+-d '{
+  "location": "Updated Polygon Name",
+  "density":"20",
+  "coordinates": [
+    [77.5946, 12.9716],
+    [77.5946, 12.9718],
+    [77.5948, 12.9718],
+    [77.5948, 12.9716],
+    [77.5946, 12.9716]
+  ]
+}'
+
+# 5. Get a Point by ID (GET /points/<id>)
+# Replace <id> with the actual ObjectId of the point you want to retrieve.
+curl -X GET http://127.0.0.1:8000/api/points/<id>
+
+
+# 6. for points :--
+curl -X POST http://localhost:8000/api/points -H "Content-Type: application/json" -d "{\"location\": \"Point A\", \"longitude\": 12.34, \"latitude\": 56.78}"
+
+
+curl -X GET http://127.0.0.1:8000/api/points/66d46cd31c05f15572768245
