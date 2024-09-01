@@ -13,12 +13,14 @@ from flask import Flask
 import numpy as np
 
 def create_dashboard(flask_app, dashboard_type):
+    # Connect to MongoDB
+    client = MongoClient('mongodb://localhost:27017/')
+    db = client['spatialdb'] 
+    
     if dashboard_type == 'location':
+        points_collection = db['points']
+
         dash_app = dash.Dash(server=flask_app, name="Location Dashboard", url_base_pathname='/location/', external_stylesheets=[dbc.themes.BOOTSTRAP])
-        # Connect to MongoDB
-        client = MongoClient('mongodb://localhost:27017/')
-        db = client['your_database']  # Replace with your database name
-        points_collection = db['points']  # Replace with your collection name
 
         # Layout
         dash_app.layout = dbc.Container([
@@ -42,8 +44,8 @@ def create_dashboard(flask_app, dashboard_type):
             points = list(points_collection.find())
             df = pd.DataFrame(points)
             
-            # Create dropdown options
-            dropdown_options = [{'label': point['name'], 'value': str(point['_id'])} for point in points]
+            # Limit dropdown options to 5 if more than 5 options are available
+            dropdown_options = [{'label': point['name'], 'value': str(point['_id'])} for point in points[:5]]
             
             # Create the Folium map
             folium_map = folium.Map(location=[0, 0], zoom_start=2)
@@ -57,30 +59,34 @@ def create_dashboard(flask_app, dashboard_type):
             return dropdown_options, folium_map_html
 
     elif dashboard_type == 'population':
+        population_collection = db['polygons'] 
+
         dash_app = dash.Dash(server=flask_app, name="Population Density Dashboard", url_base_pathname='/population/', external_stylesheets=[dbc.themes.BOOTSTRAP])
-        # Connect to MongoDB
-        client = MongoClient('mongodb://localhost:27017/')
-        db = client['your_database']  # Replace with your database name
-        population_collection = db['population']  # Replace with your collection name
 
         # Layout
         dash_app.layout = dbc.Container([
             dbc.Row([
                 dbc.Col([
                     html.H1("Population Density Dashboard"),
+                    dcc.Dropdown(id='population-dropdown', options=[], value=None),
                     html.Div(id='population-density-map', style={'width': '100%', 'height': '100vh'}),
                 ], width=12)
             ])
         ], fluid=True)
 
-        # Callback to update population density map
+        # Callback to update population dropdown and density map
         @dash_app.callback(
-            Output('population-density-map', 'children')
+            [Output('population-dropdown', 'options'),
+             Output('population-density-map', 'children')],
+            Input('population-dropdown', 'value')
         )
-        def update_population_density_dashboard():
+        def update_population_density_dashboard(selected_population):
             # Fetch population density data from the database
             population_data = list(population_collection.find())
             df = pd.DataFrame(population_data)
+            
+            # Limit dropdown options to 5 if more than 5 options are available
+            dropdown_options = [{'label': population['name'], 'value': str(population['_id'])} for population in population_data[:5]]
             
             # Create Cartopy map
             fig = plt.figure(figsize=(12, 8))
@@ -88,14 +94,15 @@ def create_dashboard(flask_app, dashboard_type):
             ax.coastlines()
             ax.add_feature(cfeature.BORDERS)
             
-            # Plot population density (mock data here, replace with actual data)
-            lon = np.linspace(-180, 180, 360)
-            lat = np.linspace(-90, 90, 180)
-            lon, lat = np.meshgrid(lon, lat)
-            density = np.random.rand(*lon.shape) * 100  # Replace with actual density data
+            # Plot population density
+            for population in population_data:
+                lons = population['coordinates']['lon']  
+                lats = population['coordinates']['lat']  
+                density = population['density'] 
+                
+                ax.pcolormesh(lons, lats, density, cmap='Oranges', transform=ccrs.PlateCarree(), shading='auto')
 
-            density_plot = ax.pcolormesh(lon, lat, density, cmap='Oranges', transform=ccrs.PlateCarree(), shading='auto')
-            plt.colorbar(density_plot, ax=ax, orientation='vertical', label='Population Density')
+            plt.colorbar(ax.pcolormesh(lons, lats, density), ax=ax, orientation='vertical', label='Population Density')
             plt.title("Population Density Map")
 
             buf = io.BytesIO()
@@ -104,6 +111,6 @@ def create_dashboard(flask_app, dashboard_type):
             cartopy_map_image = base64.b64encode(buf.getvalue()).decode()
             cartopy_map_html = html.Img(src=f'data:image/png;base64,{cartopy_map_image}', style={'width': '100%', 'height': '100vh'})
 
-            return cartopy_map_html
+            return dropdown_options, cartopy_map_html
 
     return dash_app
