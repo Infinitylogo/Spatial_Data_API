@@ -1,3 +1,23 @@
+"""
+Details :--
+
+- **Imports**:
+  - `Blueprint`, `request`, `jsonify` from `quart`
+  - `ObjectId` from `bson.objectid`
+  - `ValidationError` from `pydantic`
+  - `GeoDataManager` from `app.models`
+  - `PointDataSchema`, `PolygonDataSchema` from `app.schemas`
+
+- **Routes**:
+  - **`/points` (POST)**: Creates a point with validation, checks for existing locations, and returns ID.
+  - **`/points/<id>` (GET)**: Retrieves a point by ID.
+  - **`/points/<id>` (PUT)**: Updates a point by ID with validation.
+  - **`/polygons` (POST)**: Creates a polygon with validation, checks for existing locations, and returns ID.
+  - **`/polygons/<id>` (PUT)**: Updates a polygon by ID with validation.
+  - **`/polygons/<id>` (GET)**: Retrieves a polygon by ID and includes density.
+
+"""
+
 from quart import Blueprint, request, jsonify
 from bson.objectid import ObjectId
 from pydantic import ValidationError
@@ -28,11 +48,11 @@ async def create_point():
         data = PointDataSchema(**data)
         
         # Ensure unique location constraint if needed
-        existing_point = await db.get_point_by_location(data.location)  # Ensure this is an async method
+        existing_point = await db.get_point_by_location(data.location)  
         if existing_point:
             return jsonify({'error': f"Point with location '{data.location}' already exists"}), 409
 
-        point_id = await db.insert_point(data.location, data.longitude, data.latitude)  # Ensure this is an async method
+        point_id = await db.insert_point(data.location, data.longitude, data.latitude)  
         return jsonify({'id': str(point_id)}), 201
 
     except ValidationError as e:
@@ -48,7 +68,7 @@ async def get_point(id):
         if not ObjectId.is_valid(id):
             return jsonify({'error': 'Invalid ID format'}), 400
 
-        point = await db.get_point_by_id(ObjectId(id))  # Ensure this is an async method
+        point = await db.get_point_by_id(ObjectId(id))  
         if not point:
             return jsonify({'error': 'Point not found'}), 404
         
@@ -78,12 +98,12 @@ async def update_point_route(id):
         data = PointDataSchema(**data)
         
         # Check if point exists
-        point = await db.get_point_by_id(ObjectId(id))  # Ensure this is an async method
+        point = await db.get_point_by_id(ObjectId(id))  
         if not point:
             return jsonify({'error': 'Point not found'}), 404
         
         # Update point
-        result = await db.update_point(ObjectId(id), data.location, data.longitude, data.latitude)  # Ensure this is an async method
+        result = await db.update_point(ObjectId(id), data.location, data.longitude, data.latitude)  
         return jsonify({'message': 'Point updated'}), 200 if result.matched_count > 0 else 404
 
     except ValidationError as e:
@@ -111,12 +131,12 @@ async def create_polygon():
         data = PolygonDataSchema(**data)
         
         # Ensure unique location constraint if needed
-        existing_polygon = await db.get_polygon_by_location(data.location)  # Ensure this is an async method
+        existing_polygon = await db.get_polygon_by_location(data.location)  
         if existing_polygon:
             return jsonify({'error': f"Polygon with location '{data.location}' already exists"}), 409
 
         # Insert polygon with density
-        polygon_id = await db.insert_polygon(data.location, data.coordinates, data.density)  # Ensure this is an async method
+        polygon_id = await db.insert_polygon(data.location, data.coordinates, data.density)  
         return jsonify({'id': str(polygon_id)}), 201
 
     except ValidationError as e:
@@ -146,12 +166,12 @@ async def update_polygon_route(id):
         data = PolygonDataSchema(**data)
         
         # Check if polygon exists
-        polygon = await db.get_polygon_by_id(ObjectId(id))  # Ensure this is an async method
+        polygon = await db.get_polygon_by_id(ObjectId(id))  
         if not polygon:
             return jsonify({'error': 'Polygon not found'}), 404
         
         # Update polygon with density
-        result = await db.update_polygon(ObjectId(id), data.location, data.coordinates, data.density)  # Ensure this is an async method
+        result = await db.update_polygon(ObjectId(id), data.location, data.coordinates, data.density)  
         return jsonify({'message': 'Polygon updated'}), 200 if result.matched_count > 0 else 404
 
     except ValidationError as e:
@@ -167,7 +187,7 @@ async def get_polygon(id):
         if not ObjectId.is_valid(id):
             return jsonify({'error': 'Invalid ID format'}), 400
 
-        polygon = await db.get_polygon_by_id(ObjectId(id))  # Ensure this is an async method
+        polygon = await db.get_polygon_by_id(ObjectId(id))  
         if not polygon:
             return jsonify({'error': 'Polygon not found'}), 404
 

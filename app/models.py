@@ -1,6 +1,29 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from bson import ObjectId
 
+
+"""
+- **Imports**:
+  - `AsyncIOMotorClient` from `motor.motor_asyncio`
+  - `ObjectId` from `bson`
+
+- **Class: `GeoDataManager`**:
+  - **Constructor**:
+    - Initializes `AsyncIOMotorClient` with `db_uri`
+    - Sets the database to `db_name`
+
+  - **Methods**:
+    - `insert_point(name, longitude, latitude)`: Inserts a point into `points` collection, returns ID.
+    - `get_point_by_id(point_id)`: Retrieves a point by ID, returns `None` if invalid.
+    - `get_point_by_location(location)`: Retrieves a point by name.
+    - `update_point(point_id, name, longitude, latitude)`: Updates a point by ID, returns result or `None`.
+    - `insert_polygon(location, coordinates, density)`: Inserts a polygon into `polygons`, returns ID.
+    - `get_polygon_by_id(polygon_id)`: Retrieves a polygon by ID, returns `None` if invalid.
+    - `update_polygon(polygon_id, location, coordinates, density)`: Updates a polygon by ID, returns result or `None`.
+    - `get_polygon_by_location(location)`: Retrieves a polygon by location.
+"""
+
+
 class GeoDataManager:
     def __init__(self, db_uri, db_name):
         self.client = AsyncIOMotorClient(db_uri)

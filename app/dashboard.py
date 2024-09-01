@@ -53,6 +53,12 @@ def create_dashboard(flask_app, dashboard_type):
             for point in points:
                 folium.Marker([point['latitude'], point['longitude']], popup=point['name']).add_to(folium_map)
             
+            if selected_location:
+                selected_point = next((point for point in points if str(point['_id']) == selected_location), None)
+                if selected_point:
+                    folium_map = folium.Map(location=[selected_point['latitude'], selected_point['longitude']], zoom_start=12)
+                    folium.Marker([selected_point['latitude'], selected_point['longitude']], popup=selected_point['name']).add_to(folium_map)
+            
             folium_map.save('folium_map.html')
             folium_map_html = html.Iframe(srcDoc=open('folium_map.html').read(), style={'width': '100%', 'height': '100vh'})
             
@@ -94,17 +100,19 @@ def create_dashboard(flask_app, dashboard_type):
             ax.coastlines()
             ax.add_feature(cfeature.BORDERS)
             
-            # Plot population density
-            for population in population_data:
-                lons = population['coordinates']['lon']  
-                lats = population['coordinates']['lat']  
-                density = population['density'] 
-                
-                ax.pcolormesh(lons, lats, density, cmap='Oranges', transform=ccrs.PlateCarree(), shading='auto')
-
-            plt.colorbar(ax.pcolormesh(lons, lats, density), ax=ax, orientation='vertical', label='Population Density')
-            plt.title("Population Density Map")
-
+            if selected_population:
+                selected_population_data = next((pop for pop in population_data if str(pop['_id']) == selected_population), None)
+                if selected_population_data:
+                    lons = np.array(selected_population_data['coordinates']['lon'])
+                    lats = np.array(selected_population_data['coordinates']['lat'])
+                    density = np.array(selected_population_data['density'])
+                    
+                    # Ensure coordinates and density arrays are of compatible shape
+                    if lons.shape == lats.shape and lons.shape == density.shape:
+                        pcm = ax.pcolormesh(lons, lats, density, cmap='Oranges', transform=ccrs.PlateCarree(), shading='auto')
+                        plt.colorbar(pcm, ax=ax, orientation='vertical', label='Population Density')
+                        plt.title("Population Density Map")
+            
             buf = io.BytesIO()
             plt.savefig(buf, format='png')
             buf.seek(0)

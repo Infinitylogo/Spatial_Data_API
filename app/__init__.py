@@ -18,7 +18,6 @@ def create_app():
     # location_dashboard = create_dashboard(app, 'location')
     # population_dashboard = create_dashboard(app, 'population')
     
-    # # Optionally, you can define URLs to access these dashboards
     # app.wsgi_app = location_dashboard.server.wsgi_app
     # app.wsgi_app = population_dashboard.server.wsgi_app
 
