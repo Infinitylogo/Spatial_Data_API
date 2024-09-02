@@ -1,7 +1,7 @@
 from flask import Flask
 from app.db import init_db
 from app.routes import api_bp
-from app.dashboard import create_dashboard
+# from app.dashboard import create_dashboard
 from config import Config
 from quart import Quart
 

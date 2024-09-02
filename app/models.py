@@ -21,6 +21,8 @@ from bson import ObjectId
     - `get_polygon_by_id(polygon_id)`: Retrieves a polygon by ID, returns `None` if invalid.
     - `update_polygon(polygon_id, location, coordinates, density)`: Updates a polygon by ID, returns result or `None`.
     - `get_polygon_by_location(location)`: Retrieves a polygon by location.
+
+    -- details referance ChatGpt
 """
 
 
@@ -29,13 +31,15 @@ class GeoDataManager:
         self.client = AsyncIOMotorClient(db_uri)
         self.db = self.client[db_name]
 
-    async def insert_point(self, name, longitude, latitude):
+    async def insert_point(self, name, longitude, latitude,details =""):
         point = {
             "name": name,
             "location": {
                 "type": "Point",
                 "coordinates": [longitude, latitude]
-            }
+            }, 
+            "details" : details
+            
         }
         result = await self.db.points.insert_one(point)
         return result.inserted_id
@@ -63,11 +67,12 @@ class GeoDataManager:
         )
         return result
 
-    async def insert_polygon(self, location, coordinates, density):
+    async def insert_polygon(self, location, coordinates, density, details=""):
         result = await self.db.polygons.insert_one({
             'location': location,
             'coordinates': coordinates,
-            'density': density
+            'density': density, 
+            "details" : details
         })
         return result.inserted_id
 

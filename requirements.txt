@@ -14,3 +14,4 @@ matplotlib
 quart
 hypercorn
 motor
+geopy
